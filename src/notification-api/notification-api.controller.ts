@@ -1,5 +1,14 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { NotificationApiService } from './notification-api.service';
+import { createMessageDto } from './dto/create-message.dto';
 
 @Controller('notification-api')
 export class NotificationApiController {
@@ -17,12 +26,17 @@ export class NotificationApiController {
   }
 
   @Post('')
-  create(@Body() body: number) {
+  create(@Body() body: createMessageDto) {
     return this.service.createMessage(body);
   }
 
   @Patch(':id')
   updateMessage(@Param('id') id: number, @Body() body: any) {
     return this.service.updateMessage(id, body);
+  }
+
+  @Delete(':id')
+  deleteMessage(@Param('id') id: number) {
+    return this.service.deleteMessage(id);
   }
 }
