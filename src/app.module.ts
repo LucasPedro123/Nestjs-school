@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { NotificationApiModule } from './notification-api/notification-api.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       autoLoadEntities: true, //carega entidade sem precisar especificar
       synchronize: true, //sincroniza as tabelas com o banco
     }),
+    UsersModule,
   ],
   controllers: [],
   providers: [],
