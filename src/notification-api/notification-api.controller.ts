@@ -4,19 +4,22 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { NotificationApiService } from './notification-api.service';
 import { createMessageDto } from './dto/create-message.dto';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Controller('notification-api')
 export class NotificationApiController {
   constructor(private readonly service: NotificationApiService) {}
 
   @Get('/')
-  findAll() {
-    return this.service.findAll();
+  findAll(@Query() pagination: PaginationDto) {
+    return this.service.findAll(pagination);
   }
 
   @Get('/:id')
@@ -31,7 +34,7 @@ export class NotificationApiController {
   }
 
   @Patch(':id')
-  updateMessage(@Param('id') id: number, @Body() body: any) {
+  updateMessage(@Param('id', ParseIntPipe) id: number, @Body() body: any) {
     return this.service.updateMessage(id, body);
   }
 
