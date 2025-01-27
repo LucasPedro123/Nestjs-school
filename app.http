@@ -1,0 +1,49 @@
+# Pegar todos itens
+@BASE_URL = http://localhost:3000
+
+### Lista todos itens
+GET {{BASE_URL}}/notification-api/
+
+### Lista apenas 1 item
+GET {{BASE_URL}}/notification-api/1
+
+### Criar mensagem
+POST {{BASE_URL}}/notification-api/
+{
+  "text": "Olá, mundo!",
+  "to": 1,
+  "by": 9,
+}
+
+
+### Atualizar dado 
+PATCH {{BASE_URL}}/notification-api/1
+{
+  "text": "Olá, mundo!",
+  "read": true
+}
+
+# USERS
+
+### Pegar todos users
+GET {{BASE_URL}}/users/
+
+### Pegar apenas 1 user
+GET {{BASE_URL}}/users/1
+
+### Criar user
+POST {{BASE_URL}}/users/
+{
+  "name": "Olá, mundo!",
+  "passwordHash": "Lucas@123",
+  "email": "lucaspedro@gmail.com"
+}
+
+
+
+### Atualizar dado user
+PATCH {{BASE_URL}}/users/1
+{
+  "text": "Olá, mundo!",
+  "read": true
+}
