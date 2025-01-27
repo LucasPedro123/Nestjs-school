@@ -1,6 +1,7 @@
 import {
   IsNotEmpty,
   IsOptional,
+  IsPositive,
   IsString,
   MaxLength,
   MinLength,
@@ -14,17 +15,9 @@ export class createMessageDto {
   @IsOptional()
   readonly text: string;
 
-  @IsNotEmpty()
-  @IsString()
-  @MinLength(5)
-  @MaxLength(40)
-  @IsOptional()
-  readonly by: string;
+  @IsPositive()
+  byId: number;
 
-  @IsNotEmpty()
-  @IsString()
-  @MinLength(5)
-  @MaxLength(40)
-  @IsOptional()
-  readonly to: string;
+  @IsPositive()
+  toId: number;
 }
