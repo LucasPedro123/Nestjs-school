@@ -1,76 +1,107 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Message } from './Entities/message.entity';
+import { createMessageDto } from './dto/create-message.dto';
+import { UpdateMessageDto } from './dto/update-message.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { UsersService } from 'src/users/users.service';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Injectable()
 export class NotificationApiService {
-  private lastId = 1;
-  private messages: Message[] = [
-    {
-      id: 1,
-      text: 'Hello, World!',
-      by: 'Lucas',
-      to: 'Alisson',
-      date: new Date(),
-      read: false,
-      user: '',
-    },
-  ];
+  constructor(
+    @InjectRepository(Message)
+    private readonly messageRepository: Repository<Message>,
+    private readonly userService: UsersService,
+  ) {}
 
-  findAll() {
-    return this.messages;
+  async findAll(pagination?: PaginationDto) {
+    const { limit = 10, offseat = 0 } = pagination;
+
+    const messageAll = await this.messageRepository.find({
+      take: limit,
+      skip: offseat,
+      relations: ['byId', 'toId'],
+      order: {
+        id: 'DESC',
+      },
+      select: {
+        byId: {
+          id: true,
+          name: true,
+        },
+        toId: {
+          id: true,
+          name: true,
+        },
+      },
+    });
+    return messageAll;
   }
 
-  findOne(id: number) {
-    const searchMessageById = this.messages.find(e => e.id == id);
+  async findOne(id: number) {
+    const searchMessageById = await this.messageRepository.findOne({
+      where: {
+        id,
+      },
+    });
 
     return searchMessageById
       ? searchMessageById
       : new HttpException('Item não encontrado!', HttpStatus.NOT_FOUND);
   }
 
-  updateMessage(id: number, body: any) {
-    const newItemIndex = this.messages.findIndex(e => e.id == id);
+  async updateMessage(id: number, body: UpdateMessageDto) {
+    const messageFindById = await this.messageRepository.findOne({
+      where: {
+        id,
+      },
+    });
 
-    if (newItemIndex < 0) {
-      return new HttpException('Item não encontrado!', HttpStatus.NOT_FOUND);
-    }
-
-    if (newItemIndex >= 0) {
-      this.messages[newItemIndex] = {
-        id: this.messages[newItemIndex].id,
-        ...body,
-      };
-      console.log('Atualizou com sucesso!');
-    } else {
-      console.log('Mensagem não encontrada!');
-    }
-
-    return this.messages;
+    messageFindById.text = body.text;
+    messageFindById.read = body.read;
+    this.messageRepository.save(messageFindById);
+    return messageFindById;
   }
 
-  createMessage(body: any) {
-    const newMessage: Message = {
-      id: this.messages.length + 1,
-      ...body,
+  async createMessage(body: createMessageDto) {
+    const { byId, toId } = body;
+
+    const searchUserSenderById = await this.userService.findOne(byId);
+    const searchUserReceiverById = await this.userService.findOne(toId);
+
+    const newMessage = {
+      date: new Date(),
+      read: false,
+      createdAt: new Date(),
+      byId: searchUserSenderById,
+      toId: searchUserReceiverById,
+      text: body.text,
     };
 
-    this.messages.push(newMessage);
+    const messageNew = this.messageRepository.create(newMessage);
+
+    this.messageRepository.save(messageNew);
+
+    return {
+      ...messageNew,
+      byId: {
+        id: searchUserSenderById.id,
+      },
+      toId: {
+        id: searchUserReceiverById.id,
+      },
+    };
   }
 
-  deleteMessage(id: number) {
-    const newItemIndex = this.messages.findIndex(e => e.id == id);
+  async deleteMessage(id: number) {
+    const findIndexMessage = await this.messageRepository.findOneBy({
+      id,
+    });
 
-    if (newItemIndex < 0) {
-      return new HttpException('Item não encontrado!', HttpStatus.NOT_FOUND);
+    if (!findIndexMessage) {
+      throw new HttpException('Item não encontrado!', HttpStatus.NOT_FOUND);
     }
-
-    if (newItemIndex >= 0) {
-      this.messages.splice(newItemIndex, 1);
-      console.log('Removeu com sucesso!');
-    } else {
-      console.log('Mensagem não encontrada!');
-    }
-
-    return this.messages;
+    this.messageRepository.remove(findIndexMessage);
   }
 }
