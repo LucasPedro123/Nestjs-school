@@ -39,10 +39,14 @@ POST {{BASE_URL}}/users/
   "email": "lucaspedro@gmail.com"
 }
 
-
-
 ### Atualizar dado user
 PATCH {{BASE_URL}}/users/1
+{
+  "text": "Olá, mundo!",
+  "read": true
+}
+### Apagar user
+DELETE {{BASE_URL}}/users/1
 {
   "text": "Olá, mundo!",
   "read": true
