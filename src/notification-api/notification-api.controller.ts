@@ -4,27 +4,32 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
   Query,
+  UseInterceptors,
+  UsePipes,
 } from '@nestjs/common';
 import { NotificationApiService } from './notification-api.service';
 import { createMessageDto } from './dto/create-message.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { ParseIntIdPipe } from 'src/common/pipes/parse-int-id.pipe';
+import { AuthRequestInterceptor } from 'src/common/interceptor/auth-request.interceptor';
 
 @Controller('notification-api')
+@UsePipes(ParseIntIdPipe)
+@UseInterceptors(AuthRequestInterceptor)
 export class NotificationApiController {
   constructor(private readonly service: NotificationApiService) {}
 
   @Get('/')
+  @UsePipes(ParseIntIdPipe)
   findAll(@Query() pagination: PaginationDto) {
     return this.service.findAll(pagination);
   }
 
   @Get('/:id')
   findOne(@Param('id') id: number) {
-    console.log(id);
     return this.service.findOne(id);
   }
 
@@ -34,7 +39,7 @@ export class NotificationApiController {
   }
 
   @Patch(':id')
-  updateMessage(@Param('id', ParseIntPipe) id: number, @Body() body: any) {
+  updateMessage(@Param('id') id: number, @Body() body: any) {
     return this.service.updateMessage(id, body);
   }
 
