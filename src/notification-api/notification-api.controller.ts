@@ -15,6 +15,7 @@ import { createMessageDto } from './dto/create-message.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { ParseIntIdPipe } from 'src/common/pipes/parse-int-id.pipe';
 import { AuthRequestInterceptor } from 'src/common/interceptor/auth-request.interceptor';
+import { UrlParam } from 'src/common/params/url-request.decorator';
 
 @Controller('notification-api')
 @UsePipes(ParseIntIdPipe)
@@ -24,7 +25,8 @@ export class NotificationApiController {
 
   @Get('/')
   @UsePipes(ParseIntIdPipe)
-  findAll(@Query() pagination: PaginationDto) {
+  findAll(@Query() pagination: PaginationDto, @UrlParam() url: string) {
+    console.log(url);
     return this.service.findAll(pagination);
   }
 
