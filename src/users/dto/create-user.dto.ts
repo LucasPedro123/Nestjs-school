@@ -11,5 +11,5 @@ export class CreateUserDto {
     minNumbers: 1,
     minSymbols: 1,
   })
-  passwordHash: string;
+  password: string;
 }
