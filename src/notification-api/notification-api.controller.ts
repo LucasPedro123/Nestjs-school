@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
   UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
@@ -16,6 +17,10 @@ import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { ParseIntIdPipe } from 'src/common/pipes/parse-int-id.pipe';
 import { AuthRequestInterceptor } from 'src/common/interceptor/auth-request.interceptor';
 import { UrlParam } from 'src/common/params/url-request.decorator';
+import { AuthTokenGuard } from 'src/auth/guard/auth.guard';
+import { TokenPayloadParam } from 'src/auth/params/token-payload.param';
+import { TokenPayloadDto } from 'src/auth/dto/token-payload.dto';
+import { UpdateMessageDto } from './dto/update-message.dto';
 
 @Controller('notification-api')
 @UsePipes(ParseIntIdPipe)
@@ -35,18 +40,31 @@ export class NotificationApiController {
     return this.service.findOne(id);
   }
 
+  @UseGuards(AuthTokenGuard)
   @Post('')
-  create(@Body() body: createMessageDto) {
-    return this.service.createMessage(body);
+  create(
+    @Body() body: createMessageDto,
+    @TokenPayloadParam() TokenPayload: TokenPayloadDto,
+  ) {
+    return this.service.createMessage(body, TokenPayload);
   }
 
+  @UseGuards(AuthTokenGuard)
   @Patch(':id')
-  updateMessage(@Param('id') id: number, @Body() body: any) {
-    return this.service.updateMessage(id, body);
+  updateMessage(
+    @Param('id') id: number,
+    @Body() body: UpdateMessageDto,
+    @TokenPayloadParam() tokenPayload: TokenPayloadDto,
+  ) {
+    return this.service.updateMessage(id, body, tokenPayload);
   }
 
+  @UseGuards(AuthTokenGuard)
   @Delete(':id')
-  deleteMessage(@Param('id') id: number) {
-    return this.service.deleteMessage(id);
+  deleteMessage(
+    @Param('id') id: number,
+    @TokenPayloadParam() tokenPayload: TokenPayloadDto,
+  ) {
+    return this.service.deleteMessage(id, tokenPayload);
   }
 }
